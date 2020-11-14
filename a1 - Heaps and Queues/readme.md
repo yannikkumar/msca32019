@@ -18,4 +18,4 @@ Create the function *kthPerson*. The function mut return an array of integers wh
 
 ### Constraints
 
-* *0 < n, k, q[i], p[i], q[i] $\leq$ 100,000*
+* *0 < n, k, q[i], p[i], q[i]* $ \leq $ *100,000*

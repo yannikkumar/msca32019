@@ -26,28 +26,28 @@ class BankClosedException(Exception):
 class Bank():
     def __init__(self, name, teller_count=4):
         self.name = name
-        self._Bank__teller_count = teller_count
+        self.__teller_count = teller_count
         self.is_open = False
         self._lock = threading.Lock()
-        self._Bank__ledger = {}
-        self._Bank__queue = queue.Queue()
-        self._Bank__tellers = [threading.Thread(target=self._teller_task,
+        self.__ledger = {}
+        self.__queue = queue.Queue()
+        self.__tellers = [threading.Thread(target=self._teller_task,
                                                 name="thread_" + str(i))
                                for i in range(1, self.teller_count + 1)]
     
     @property
     def teller_count(self):
-        return self._Bank__teller_count
+        return self.__teller_count
     
     @teller_count.setter
     def teller_count(self, teller_count):
         if teller_count < 1:
             raise ValueError ("Teller count must be >1")
-        self._Bank__teller_count = teller_count
+        self.__teller_count = teller_count
     
     @property
     def ledger(self):
-        return self._Bank__ledger
+        return self.__ledger
 
     @ledger.setter
     def ledger(self, *args, **kwargs):
@@ -55,34 +55,34 @@ class Bank():
     
     def open_for_business(self):
         self.is_open = True
-        for teller in self._Bank__tellers:
+        for teller in self.__tellers:
             teller.start()
     
     def close(self):
         self.is_open = False
-        for teller in self._Bank__tellers:
+        for teller in self.__tellers:
             teller.join()
     
     def receive_customer(self, customer):
         if self.is_open:
-            self._Bank__queue.put(customer)
+            self.__queue.put(customer)
         else:
             raise BankClosedException ("Bank is not open to receive customers")
     
     def _teller_task(self):
         time.sleep(2)
-        while not self._Bank__queue.empty():
-            current_customer = self._Bank__queue.get()
+        while not self.__queue.empty():
+            current_customer = self.__queue.get()
             self._lock.acquire()
-            if current_customer[0] in self._Bank__ledger:
-                current_balance = self._Bank__ledger[current_customer[0]]
+            if current_customer[0] in self.__ledger:
+                current_balance = self.__ledger[current_customer[0]]
                 transaction = current_customer[1]
                 if current_balance + transaction >= 0:
-                    self._Bank__ledger[current_customer[0]] += current_customer[1]
+                    self.__ledger[current_customer[0]] += current_customer[1]
             else:
                 transaction = current_customer[1]
                 if 0 + transaction >= 0:
-                    self._Bank__ledger[current_customer[0]] = current_customer[1]
+                    self.__ledger[current_customer[0]] = current_customer[1]
             self._lock.release()
     
     
